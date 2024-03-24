@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <lvgl.h>
 #include <TFT_eSPI.h>
@@ -7,6 +8,9 @@
 /*******************************************************************************
    End of Arduino_GFX setting
  ******************************************************************************/
+//Wire (IIC Connection)
+#define slaveAddress 0x08 //0001000 (7-bit)
+
 //I2C读写命令
 
 #define GT_CMD_WR           0XBA         //写命令0xBA
@@ -533,6 +537,8 @@ void my_print(const char * buf)
   Serial.flush();
 }
 #endif
+String data = "";
+
 //_______________________
 void lv_example_btn(void)
 {
@@ -826,25 +832,35 @@ void setup()
       //lv_demo_music();              // NOK
       //lv_demo_printer();
       //lv_demo_stress();             // seems to be OK
-      lv_bar_set_value();
       ui_init();
   #endif
-  
+      Wire.begin(slaveAddress);
       Serial.println( "Setup done" );
 }
 
+
+
 void loop()
 {
-     
 
   //GT911_Scan();
   //tft.fillCircle(Dev_Now.X[0], Dev_Now.Y[0], 0, TFT_RED);
   //tft.fillCircle(30, 20, 1, TFT_RED);
+  static byte x;
+  Wire.beginTransmission(slaveAddress);
+  Wire.write("x is ");
+  Wire.write(x);
+  Wire.endTransmission();
+  Serial.println(x);
+  x++;
+
   lv_timer_handler(); /* 让GUI完成它的工作 */
   //tft.fillCircle(Dev_Now.X[0], Dev_Now.Y[0], 1, TFT_RED);
   
   delay( 10 );
 }
+
+
 /*
   void touch_calibrate()//屏幕校准
   {
