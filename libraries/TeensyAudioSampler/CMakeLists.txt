@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 3.5)
+project(teensysequencer)
+
+if (NOT DEFINED TEENSY_VERSION)
+    set(BUILD_FOR_LINUX 1)
+    add_definitions(-DBUILD_FOR_LINUX)
+endif()
+
+if (NOT DEFINED BUILD_FOR_LINUX)   
+    set(CMAKE_CXX_STANDARD 14)
+    import_arduino_library(cores ${COREPATH} avr debug util)
+    import_arduino_library(SPI ${DEPSPATH}/SPI)
+    import_arduino_library(SdFat ${DEPSPATH}/SdFat/src common DigitalIO ExFatLib FatLib FsLib iostream SdCard SpiDriver)
+    import_arduino_library(SD ${DEPSPATH}/SD/src)
+    import_arduino_library(SerialFlash ${DEPSPATH}/SerialFlash util)
+    import_arduino_library(Wire ${DEPSPATH}/Wire utility)
+    import_arduino_library(arm_math ${DEPSPATH}/arm_math/src)
+    import_arduino_library(Audio ${DEPSPATH}/Audio utility)
+    import_arduino_library(MIDI ${DEPSPATH}/MIDI/src)
+    import_arduino_library(USBHost_t36 ${DEPSPATH}/USBHost_t36)
+
+    import_arduino_library(TeensyVariablePlayback ${DEPSPATH}/teensy-variable-playback src)
+    
+    add_subdirectory(src)
+    add_subdirectory(examples/polyphony_demo)
+    add_subdirectory(examples/launch_ctrl)
+    add_subdirectory(examples/loop_ctrl)
+else()
+    set(CMAKE_CXX_STANDARD 14)
+    find_package(teensy_x86_stubs)
+    include_directories(${teensy_x86_stubs_INCLUDE_DIR})
+    
+    find_package(teensy_x86_sd_stubs)
+    include_directories(${teensy_x86_sd_stubs_INCLUDE_DIR})
+
+    find_package(teensy_audio_x86_stubs)
+    include_directories(${teensy_audio_x86_stubs_INCLUDE_DIR})
+
+    add_subdirectory(src)
+    add_subdirectory(extras/linux/array)
+    #add_subdirectory(extras/linux/sample_launcher)
+
+endif()
